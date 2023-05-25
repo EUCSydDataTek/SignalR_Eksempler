@@ -28,5 +28,17 @@ namespace SignalREksempler.Hubs
             await Clients.Others.SendAsync("RecieveNotification",message);
             logger.LogInformation($"Global message: {message}");
         }
+
+        public async Task SubScribeTo(string name)
+        {
+            logger.LogInformation($"{Context.ConnectionId} Subscribed to {name}");
+            await Groups.AddToGroupAsync(Context.ConnectionId,name);
+        }
+
+        public async Task SendToGroup(string name, string message)
+        {
+            logger.LogInformation($"{name} message: {message}");
+           await Clients.Group(name).SendAsync("RecieveNotificationFromGroup",name,message);
+        }
     }
 }

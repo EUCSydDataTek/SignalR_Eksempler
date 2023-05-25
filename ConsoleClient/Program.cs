@@ -12,9 +12,46 @@ connection.On<string>("RecieveNotification", msg =>
 
 await connection.StartAsync();
 
-while (true)
+bool Exit = false;
+
+do
 {
+    var key = Console.ReadKey();
+    switch (key.Key)
+    {
+        case ConsoleKey.X:
+            Exit = true;
+            break;
+
+        case ConsoleKey.S:
+            SubScribe(connection); 
+            break;
+
+        case ConsoleKey.G:
+            GlobalMessage(connection);
+            break;
+
+        default:
+            break;
+    }
+
+
+}
+while (!Exit);
+
+await connection.StopAsync();
+
+async Task GlobalMessage(HubConnection connection)
+{
+    Console.Write("\nGlobal message:");
     string msg = Console.ReadLine();
     await connection.SendAsync("SendGlobalNotification", msg);
 }
 
+async Task SubScribe(HubConnection connection)
+{
+    Console.Write("\n Subscibe to:");
+    string group = Console.ReadLine();
+    await connection.SendAsync("SubScribeTo", group);
+}
+ 
