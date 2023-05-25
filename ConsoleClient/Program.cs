@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.VisualBasic;
 // See https://aka.ms/new-console-template for more information
 
 HubConnection connection = new HubConnectionBuilder()
@@ -9,6 +10,12 @@ connection.On<string>("RecieveNotification", msg =>
 {   
     Console.WriteLine($"Notification: {msg} \a");
 });
+
+connection.On<string, string>("RecieveNotificationFromGroup", (group, msg) =>
+{
+    Console.WriteLine($"{group}: {msg} \a");
+});
+
 
 await connection.StartAsync();
 
@@ -27,8 +34,8 @@ do
             SubScribe(connection); 
             break;
 
-        case ConsoleKey.G:
-            GlobalMessage(connection);
+        case ConsoleKey.M:
+            SendMessage(connection);
             break;
 
         default:
@@ -41,11 +48,21 @@ while (!Exit);
 
 await connection.StopAsync();
 
-async Task GlobalMessage(HubConnection connection)
+async Task SendMessage(HubConnection connection)
 {
-    Console.Write("\nGlobal message:");
+    Console.Write("\nGroup:");
+    string Group = Console.ReadLine();
+    Console.Write("\nMessage:");
     string msg = Console.ReadLine();
-    await connection.SendAsync("SendGlobalNotification", msg);
+
+    if (string.IsNullOrEmpty(Group))
+    {
+        await connection.SendAsync("SendGlobalNotification", msg);
+        return;
+    }
+
+    await connection.SendAsync("SendToGroup",Group,msg);
+
 }
 
 async Task SubScribe(HubConnection connection)
